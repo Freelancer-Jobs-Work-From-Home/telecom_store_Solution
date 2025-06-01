@@ -51,36 +51,57 @@ namespace eStore.Controllers
             ModelState.Remove("Avatar");
             if (!ModelState.IsValid) return View(model);
 
-            string uniqueFileName = null;
-            if (model.ImageFile != null)
+            var formData = new MultipartFormDataContent();
+
+            // Thêm các trường văn bản
+            formData.Add(new StringContent(model.FullName ?? ""), "FullName");
+            formData.Add(new StringContent(model.Email ?? ""), "Email");
+            formData.Add(new StringContent(model.Password ?? ""), "Password");
+            formData.Add(new StringContent(model.Address ?? ""), "Address");
+            formData.Add(new StringContent(model.Role ?? "User"), "Role");
+
+            if (model.DateOfBirth != null)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/users");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-                uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.ImageFile.CopyToAsync(stream);
-                }
-                model.Avatar = "/images/users/" + uniqueFileName;
+                formData.Add(new StringContent(model.DateOfBirth.ToString("yyyy-MM-dd")), "DateOfBirth");
+
             }
 
-            var json = JsonConvert.SerializeObject(model);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync("User", content);
-            if (!response.IsSuccessStatusCode) return View(model);
+            // Thêm file nếu có
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var fileStream = model.ImageFile.OpenReadStream();
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(model.ImageFile.ContentType);
 
+                formData.Add(fileContent, "ImageFile", model.ImageFile.FileName);
+            }
+
+            var response = await _httpClient.PostAsync("User", formData);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                ModelState.AddModelError("", "Tạo người dùng thất bại: " + error);
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "Tạo người dùng thành công!";
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
             var response = await _httpClient.GetAsync($"User/{id}");
-            if (!response.IsSuccessStatusCode) return NotFound();
+            if (!response.IsSuccessStatusCode)
+                return NotFound();
+
             var content = await response.Content.ReadAsStringAsync();
             var user = JsonConvert.DeserializeObject<UserViewModel>(content);
+
             return View(user);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -90,23 +111,31 @@ namespace eStore.Controllers
             ModelState.Remove("Avatar");
             if (!ModelState.IsValid) return View(model);
 
-            if (model.ImageFile != null)
+            // Xử lý ảnh nếu có ảnh mới
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/users");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-                string uniqueFileName = "/images/users/" + Guid.NewGuid() + Path.GetExtension(model.ImageFile.FileName);
-                string filePath = Path.Combine(_webHostEnvironment.WebRootPath, uniqueFileName.TrimStart('/'));
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/users");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await model.ImageFile.CopyToAsync(stream);
                 }
+
+                // Lưu chỉ tên file
                 model.Avatar = uniqueFileName;
             }
 
             var json = JsonConvert.SerializeObject(model);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PutAsync($"User/{id}", content);
-            if (!response.IsSuccessStatusCode) return View(model);
+
+            if (!response.IsSuccessStatusCode)
+                return View(model);
 
             return RedirectToAction("Index");
         }

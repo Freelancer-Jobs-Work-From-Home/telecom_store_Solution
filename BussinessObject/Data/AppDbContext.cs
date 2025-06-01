@@ -32,7 +32,7 @@ namespace BussinessObject.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Data Source=LENOVO;Database=TelecomStore;User ID=sa;Password=123456;Trust Server Certificate=True");
+                optionsBuilder.UseSqlServer("Data Source=TUYETCHINH;Database=TelecomStore;User ID=sa;Password=123456;Trust Server Certificate=True");
             }
         }
 

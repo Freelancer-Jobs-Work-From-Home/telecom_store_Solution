@@ -1,4 +1,5 @@
 ﻿using BussinessObject.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.ViewModel.User;
@@ -11,11 +12,14 @@ namespace Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IWebHostEnvironment _environment;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IWebHostEnvironment environment)
         {
             _userService = userService;
+            _environment = environment;
         }
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -33,15 +37,55 @@ namespace Server.Controllers
             return Ok(users);
         }
 
+        [HttpGet("{id}")]
+        public IActionResult GetDetail(Guid id)
+        {
+            var user = _userService.GetById(id);
+            if (user == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                user.UserID,
+                user.FullName,
+                user.Email,
+                user.Address,
+                user.Avatar,
+                user.DateOfBirth,
+                user.Role
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] UserViewModel model)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             if (_userService.GetByEmail(model.Email) != null)
                 return Conflict(new { message = "Email đã tồn tại" });
 
-            /*string avatarUrl = await SaveImageAsync(model.ImageFile);*/
+            string avatarRelativePath = "";
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var projectRoot = Directory.GetCurrentDirectory();
+                var relativeFolder = Path.Combine("Upload", "images", "users");
+                var fullSavePath = Path.Combine(projectRoot, relativeFolder);
+
+                if (!Directory.Exists(fullSavePath))
+                    Directory.CreateDirectory(fullSavePath);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.ImageFile.FileName)}";
+                var fullFilePath = Path.Combine(fullSavePath, uniqueFileName);
+
+                using (var fileStream = new FileStream(fullFilePath, FileMode.Create))
+                {
+                    await model.ImageFile.CopyToAsync(fileStream);
+                }
+
+                avatarRelativePath = Path.Combine(relativeFolder, uniqueFileName).Replace("\\", "/");
+            }
 
             var user = new User
             {
@@ -49,7 +93,7 @@ namespace Server.Controllers
                 FullName = model.FullName,
                 Email = model.Email,
                 Address = model.Address,
-                Avatar = "",
+                Avatar = avatarRelativePath,
                 PasswordHash = model.Password,
                 DateOfBirth = model.DateOfBirth,
                 Role = model.Role,
@@ -57,9 +101,60 @@ namespace Server.Controllers
             };
 
             _userService.Add(user);
+
             return Ok(new { message = "Tạo người dùng thành công", user });
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromForm] UserViewModel model)
+        {
+            var user = _userService.GetById(id);
+            if (user == null)
+                return NotFound();
 
+            user.FullName = model.FullName;
+            user.Address = model.Address;
+            user.DateOfBirth = model.DateOfBirth;
+            user.Role = model.Role;
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var projectRoot = Directory.GetCurrentDirectory();
+                var relativeFolder = Path.Combine("Upload", "images", "users");
+                var fullSavePath = Path.Combine(projectRoot, relativeFolder);
+
+                if (!Directory.Exists(fullSavePath))
+                    Directory.CreateDirectory(fullSavePath);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(model.ImageFile.FileName)}";
+                var fullFilePath = Path.Combine(fullSavePath, uniqueFileName);
+
+                using (var fileStream = new FileStream(fullFilePath, FileMode.Create))
+                {
+                    await model.ImageFile.CopyToAsync(fileStream);
+                }
+
+                user.Avatar = Path.Combine(relativeFolder, uniqueFileName).Replace("\\", "/");
+            }
+
+            _userService.Update(user);
+
+            return Ok(new { message = "Cập nhật người dùng thành công", user });
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
+        {
+            var user = _userService.GetById(id);
+            if (user == null)
+                return NotFound();
+
+            if (!_userService.CanDelete(id))
+                return BadRequest(new { message = "Không thể xoá người dùng này" });
+
+            _userService.Delete(user.UserID);
+
+            return Ok(new { message = "Xoá người dùng thành công" });
+        }
     }
 }

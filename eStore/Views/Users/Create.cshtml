@@ -5,12 +5,15 @@
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
     ViewData["ActivePage"] = "User";
 }
+<!-- Flatpickr styles & scripts -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <h2 class="text-center my-4 text-primary">👤 Thêm Người Dùng Mới</h2>
 
 <div class="card shadow-lg border-0 rounded p-4">
     <form asp-action="Create" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
+        @Html.AntiForgeryToken()
 
         <!-- Họ và tên -->
         <div class="mb-3">
@@ -77,12 +80,12 @@
             <label asp-for="DateOfBirth" class="form-label fw-bold">🎂 Ngày sinh</label>
             <div class="input-group shadow-sm">
                 <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
-                <input asp-for="DateOfBirth" type="date" id="dateOfBirth" class="form-control" />
+                <input asp-for="DateOfBirth" type="text" id="dateOfBirth" class="form-control" placeholder="Chọn ngày sinh" />
             </div>
-            
+            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
         </div>
 
-        <!-- Button lưu & quay lại -->
+        <!-- Nút lưu & quay lại -->
         <div class="d-flex justify-content-end gap-3 mt-4">
             <button type="submit" class="btn btn-success px-4 shadow-sm">
                 <i class="fas fa-save"></i> Lưu
@@ -95,25 +98,24 @@
 </div>
 
 @section Scripts {
-    @{
-        <script>
-            function updateFileName() {
-                const fileInput = document.getElementById('fileInput');
-                const fileName = document.getElementById('fileName');
-                fileName.value = fileInput.files.length > 0 ? fileInput.files[0].name : "Chưa chọn tệp";
-            }
-        </script>
+    <script>
+        function updateFileName() {
+            const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('fileName');
+            fileName.value = fileInput.files.length > 0 ? fileInput.files[0].name : "Chưa chọn tệp";
+        }
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                flatpickr("#dateOfBirth", {
-                    dateFormat: "d/m/Y",
-                    allowInput: true
-                });
+        document.addEventListener("DOMContentLoaded", function () {
+            flatpickr("#dateOfBirth", {
+                dateFormat: "Y-m-d", // Kết hợp đúng định dạng phía server "yyyy-MM-dd"
+                maxDate: "today",
+                allowInput: true,
+                locale: "vn"
             });
-        </script>
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+        });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
 }
 
 <style>
