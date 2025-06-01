@@ -1,0 +1,55 @@
+﻿@model List<eStore.Models.Review.ReviewViewModel>
+
+@if (Model.Any())
+{
+    <div class="review-list">
+        @foreach (var review in Model)
+        {
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold">@(!string.IsNullOrEmpty(review.UserName) ? review.UserName : "Người dùng ẩn danh")</h5>
+                        <small class="text-muted">@review.CreatedAt.ToString("dd/MM/yyyy")</small>
+                    </div>
+
+                    <!-- Hiển thị đánh giá sao -->
+                    <div class="rating">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fa @(i <= review.Rating ? "fa-star text-warning" : "fa-star-o text-secondary")"></i>
+                        }
+                        <span class="text-muted">(@review.Rating/5)</span>
+                    </div>
+
+                    <p class="mt-2 review-content text-truncate" style="max-width: 100%;" data-full="@review.Comment">
+                        @review.Comment
+                    </p>
+                    <button class="btn btn-link p-0 text-primary toggle-content d-none" style="font-size: 14px;">Xem thêm</button>
+
+                    @if (review.isOwner)
+                    {
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-warning btn-sm me-2 edit-review"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editReviewModal"
+                                    data-review-id="@review.ReviewID"
+                                    data-rating="@review.Rating"
+                                    data-comment="@review.Comment">
+                                <i class="fa fa-edit"></i> Sửa
+                            </button>
+                            <button class="btn btn-danger btn-sm delete-review" data-review-id="@review.ReviewID">
+                                <i class="fa fa-trash"></i> Xóa
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="fa fa-info-circle"></i> Chưa có đánh giá nào.
+    </div>
+}

@@ -1,0 +1,35 @@
+﻿@model eStore.Models.Category.CategoryMenuViewModel
+
+<div class="dropdown-menu shadow-lg border-0 rounded-3 overflow-hidden p-3" style="min-width: 400px; left: 0; transform: translateX(-10%);">
+    <div class="d-flex">
+        @if (Model.TdCategories.Any())
+        {
+            <div class="flex-grow-1 me-3">
+                <h6 class="dropdown-header bg-light text-primary fw-bold py-2 px-3">
+                    <i class="bi bi-basket-fill me-2"></i> Sản phẩm tiêu dùng
+                </h6>
+                @foreach (var category in Model.TdCategories)
+                {
+                    <a class="dropdown-item d-flex align-items-center py-2 px-3 text-dark" href="@Url.Action("ListCategory", "Home", new { category = category.CategoryID })">
+                        <i class="bi bi-box-seam me-2 text-primary"></i> @category.CategoryName.Replace("TD:", "")
+                    </a>
+                }
+            </div>
+        }
+
+        @if (Model.VtCategories.Any())
+        {
+            <div class="flex-grow-1 border-start ps-3">
+                <h6 class="dropdown-header bg-light text-success fw-bold py-2 px-3">
+                    <i class="bi bi-phone me-2"></i> Sản phẩm viễn thông
+                </h6>
+                @foreach (var category in Model.VtCategories)
+                {
+                    <a class="dropdown-item d-flex align-items-center py-2 px-3 text-dark" href="@Url.Action("ListCategory", "Home", new { category = category.CategoryID })">
+                        <i class="bi bi-wifi me-2 text-success"></i> @category.CategoryName.Replace("VT:", "")
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>

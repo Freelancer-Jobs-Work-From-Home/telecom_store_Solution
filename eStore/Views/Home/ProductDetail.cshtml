@@ -1,0 +1,283 @@
+﻿@model eStore.Models.Product.ProductViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+    </ol>
+</nav>
+
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Hình ảnh sản phẩm -->
+        <div class="col-md-6">
+            <img src="@Model.ImageURL" alt="@Model.Name" class="img-fluid rounded shadow-sm" style="max-height: 350px; width: auto;">
+        </div>
+
+        <!-- Thông tin sản phẩm -->
+        <div class="col-md-6">
+            <h2 class="fw-bold">@Model.Name</h2>
+            <h4 class="text-danger">@Model.Price.ToString("#,##0") VND</h4>
+            <p>@Model.Description</p>
+
+            <div class="box_quantity mb-20">
+                <a href="#" class="add-to-cart" data-id="@Model.ProductID"><i class="fa fa-shopping-cart"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="product_d_info">
+        <div class="row">
+            <div class="col-12">
+                <div class="product_d_inner">
+                    <div class="product_info_button">
+                        <ul class="nav" role="tablist">
+                            <li>
+                                <a class="active" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="false">
+                                    Thông tin thêm
+                                </a>
+                            </li>
+                            <li>
+                                <a data-bs-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">
+                                    Các đánh giá
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <div class="product_info_content">
+                                <p><strong>Danh mục:</strong> @Model.CategoryName</p>
+                                <p><strong>Tồn kho:</strong> @Model.Stock sản phẩm</p>
+                            </div>
+                        </div>
+
+                        
+                        <div class="tab-pane fade" id="reviews" role="tabpanel">
+                            <div id="reviewContent"></div>
+
+                            <button class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                Viết đánh giá
+                            </button>
+
+                            <!-- Modal Thêm Review -->
+                            <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content shadow-lg rounded-3">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title" id="reviewModalLabel">Gửi đánh giá của bạn</h5>
+                                            <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="rating" class="form-label fw-bold">Số sao:</label>
+                                                <select id="rating" class="form-select">
+                                                    <option value="5">⭐️⭐️⭐️⭐️⭐️ - Tuyệt vời</option>
+                                                    <option value="4">⭐️⭐️⭐️⭐️ - Tốt</option>
+                                                    <option value="3">⭐️⭐️⭐️ - Bình thường</option>
+                                                    <option value="2">⭐️⭐️ - Cần cải thiện</option>
+                                                    <option value="1">⭐️ - Rất tệ</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="reviewComment" class="form-label fw-bold">Bình luận:</label>
+                                                <textarea id="reviewComment" class="form-control" rows="4" placeholder="Viết cảm nhận của bạn..." style="resize: none;"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                            <button id="submitReview" class="btn btn-primary">Gửi đánh giá</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Modal Chỉnh Sửa Review -->
+                            <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content shadow-lg rounded-3">
+                                        <div class="modal-header bg-warning text-white">
+                                            <h5 class="modal-title" id="editReviewModalLabel">Chỉnh sửa đánh giá</h5>
+                                            <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="hidden" id="editReviewId">
+
+                                            <div class="mb-3">
+                                                <label for="editRating" class="form-label fw-bold">Số sao:</label>
+                                                <select id="editRating" class="form-select">
+                                                    <option value="5">⭐️⭐️⭐️⭐️⭐️ - Tuyệt vời</option>
+                                                    <option value="4">⭐️⭐️⭐️⭐️ - Tốt</option>
+                                                    <option value="3">⭐️⭐️⭐️ - Bình thường</option>
+                                                    <option value="2">⭐️⭐️ - Cần cải thiện</option>
+                                                    <option value="1">⭐️ - Rất tệ</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="editReviewComment" class="form-label fw-bold">Bình luận:</label>
+                                                <textarea id="editReviewComment" class="form-control" rows="4" placeholder="Chỉnh sửa đánh giá của bạn..." style="resize: none;"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                            <button id="updateReview" class="btn btn-warning">Cập nhật</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+@{
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var userName = User.Identity?.Name;
+}
+<script>
+    const currentUserID = '@userId';
+    const currentUserName = '@userName';
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        var productId = '@Model.ProductID';
+        
+
+        function loadReviews() {
+            $.ajax({
+                url: "/Review/GetReviews",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                type: "GET",
+                data: { productId: productId },
+                success: function (data) {
+                    $("#reviewContent").html(data);
+                },
+                error: function (xhr) {
+                    handleAjaxError(xhr, "Không thể tải đánh giá. Vui lòng thử lại.");
+                }
+            });
+        }
+
+        function handleAjaxError(xhr, defaultMsg) {
+            if (xhr.status === 401 || xhr.status === 403) {
+                alert("Bạn cần đăng nhập để thực hiện hành động này.");
+                window.location.href = "/Auth/Login";
+            } else {
+                alert(defaultMsg);
+            }
+        }
+
+        // Tải đánh giá khi nhấn vào tab "reviews"
+        $('a[href="#reviews"]').on("click", function () {
+            loadReviews();
+        });
+
+        // Thêm đánh giá
+        $("#submitReview").on("click", function () {
+            const reviewData = {
+                reviewID: "",
+                userID: currentUserID,
+                userName: currentUserName,
+                productID: productId,
+                productName: "",
+                rating: parseInt($("#rating").val()),
+                comment: $("#reviewComment").val(),
+                createdAt: new Date().toISOString(),
+                isOwner: true
+            };
+
+            $.ajax({
+                url: "/Review/AddReview",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(reviewData),
+                success: function (partialHtml) {
+                    $("#reviewContent").html(partialHtml);
+                    $("#reviewModal").modal("hide");
+                    $("#rating").val("5");
+                    $("#reviewComment").val("");
+                    alert("Đánh giá của bạn đã được thêm!");
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ AJAX lỗi khi gửi đánh giá:");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                    console.error("Response:", xhr.responseText);
+
+                    handleAjaxError(xhr, "Không thể thêm đánh giá.");
+                }
+            });
+        });
+
+        // Xóa đánh giá
+        $(document).on("click", ".delete-review", function () {
+            var reviewId = $(this).data("review-id");
+            if (confirm("Bạn có chắc muốn xóa đánh giá này?")) {
+                $.ajax({
+                    url: "/Review/DeleteReview",
+                    type: "POST",
+                    data: { reviewId: reviewId, productId: productId },
+                    success: function (data) {
+                        $("#reviewContent").html(data);
+                        alert("Đánh giá đã được xóa.");
+                    },
+                    error: function (xhr) {
+                        handleAjaxError(xhr, "Không thể xóa đánh giá. Vui lòng thử lại.");
+                    }
+                });
+            }
+        });
+
+        // Mở modal sửa đánh giá
+        $(document).on("click", ".edit-review", function () {
+            var reviewId = $(this).data("review-id");
+            $("#editReviewId").val(reviewId);
+            $("#editRating").val($(this).data("rating"));
+            $("#editReviewComment").val($(this).data("comment"));
+            $("#editReviewModal").modal("show");
+        });
+
+        // Cập nhật đánh giá
+        $("#updateReview").on("click", function () {
+            var reviewData = {
+                ReviewID: $("#editReviewId").val(),
+                Rating: $("#editRating").val(),
+                Comment: $("#editReviewComment").val(),
+                ProductID: productId
+            };
+
+            $.ajax({
+                url: "/Review/UpdateReview",
+                type: "POST",
+                data: reviewData,
+                success: function (data) {
+                    $("#reviewContent").html(data);
+                    $("#editReviewModal").modal("hide");
+                    alert("Đánh giá đã được cập nhật.");
+                },
+                error: function (xhr) {
+                    handleAjaxError(xhr, "Không thể cập nhật đánh giá. Vui lòng thử lại.");
+                }
+            });
+        });
+    });
+</script>
+

@@ -1,0 +1,67 @@
+﻿@model eStore.Models.Coupon.CouponViewModel
+
+@{
+    ViewData["Title"] = "Tạo mã giảm giá";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["ActivePage"] = "Category";
+}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<h2 class="text-center my-4">Tạo danh mục mới</h2>
+
+<div class="card shadow p-4">
+    <form asp-action="Create" method="post" class="d-flex flex-column gap-3">
+        <div class="mb-3">
+            <label asp-for="Code" class="form-label">Mã giảm giá</label>
+            <input asp-for="Code" class="form-control" />
+            <span asp-validation-for="Code" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DiscountPercentage" class="form-label">Phần trăm giảm giá</label>
+            <input asp-for="DiscountPercentage" class="form-control" />
+            <span asp-validation-for="DiscountPercentage" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ExpiryDate" class="form-label">Ngày hết hạn</label>
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-light"><i class="fas fa-calendar-alt"></i></span>
+                <input asp-for="ExpiryDate" type="date" id="expiryDate" class="form-control" />
+            </div>
+            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 mt-10">
+            <button type="submit" class="btn btn-success px-4">
+                <i class="fas fa-save"></i> Lưu
+            </button>
+            <a asp-action="Index" class="btn btn-secondary px-4">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                flatpickr("#expiryDate", {
+                    enableTime: true,
+                    enableSeconds: true,
+                    dateFormat: "Y-m-d H:i:S", // Định dạng chuẩn cho ASP.NET MVC
+                    altInput: true,
+                    altFormat: "d/m/Y H:i:S", // Hiển thị cho người dùng
+                    time_24hr: true,
+                    defaultHour: 23,
+                    defaultMinute: 59,
+                    defaultSecond: 59
+                });
+            });
+        </script>
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+

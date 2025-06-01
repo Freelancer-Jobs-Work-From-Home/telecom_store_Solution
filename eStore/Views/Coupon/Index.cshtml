@@ -1,0 +1,83 @@
+﻿@model IEnumerable<eStore.Models.Coupon.CouponViewModel>
+
+@{
+    ViewData["Title"] = "Coupon List";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["ActivePage"] = "Coupon";
+}
+
+<h1 class="text-center my-4">Danh sách mã giảm giá</h1>
+
+<div class="d-flex justify-content-between mb-3">
+    <a asp-action="Create" class="btn btn-success">
+        <i class="fas fa-plus"></i> Tạo mã giảm giá mới
+    </a>
+</div>
+
+<div class="table-responsive-md">
+    <table id="couponTable" class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Code)</th>
+                <th>@Html.DisplayNameFor(model => model.DiscountPercentage)</th>
+                <th>@Html.DisplayNameFor(model => model.ExpiryDate)</th>
+
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="fw-bold">@Html.DisplayFor(modelItem => item.Code)</td>
+                    <td class="fw-bold">@Html.DisplayFor(modelItem => item.DiscountPercentage)</td>
+                    <td class="fw-bold">@Html.DisplayFor(modelItem => item.ExpiryDate)</td>
+
+
+                    <td>
+                        <div class="btn-group">
+                            <a asp-action="Edit" asp-route-id="@item.CouponID" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>Sửa
+                            </a>                            
+                                <a asp-action="Delete" asp-route-id="@item.CouponID" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </a>
+                        </div>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    @{
+        <script>
+            $(document).ready(function () {
+                $('#couponTable').DataTable({
+                    "paging": true,       // Bật phân trang
+                    "lengthMenu": [5, 10, 25, 50], // Các tùy chọn số dòng trên mỗi trang
+                    "searching": true,    // Bật tìm kiếm
+                    "ordering": true,     // Bật sắp xếp cột
+                    "info": true,         // Hiển thị tổng số bản ghi
+                    "language": {
+                        "lengthMenu": "Hiển thị _MENU_ mã mỗi trang",
+                        "zeroRecords": "Không tìm thấy mã giảm giá nào",
+                        "info": "Trang _PAGE_ trên _PAGES_",
+                        "infoEmpty": "Không có dữ liệu",
+                        "search": "🔍 Tìm kiếm:",
+                        "paginate": {
+                            "first": "Trang đầu",
+                            "last": "Trang cuối",
+                            "next": "▶",
+                            "previous": "◀"
+                        }
+                    }
+                });
+            });
+        </script>
+
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

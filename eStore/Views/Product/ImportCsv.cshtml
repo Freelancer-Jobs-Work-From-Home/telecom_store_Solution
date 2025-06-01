@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Nhập dữ liệu từ CSV";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["ActivePage"] = "Product";
+}
+
+<h2>Nhập dữ liệu từ CSV</h2>
+
+<!-- Hiển thị thông báo lỗi / thành công -->
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<!-- Form upload file CSV -->
+<form asp-action="PreviewCsv" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">Chọn file CSV</label>
+        <input type="file" name="file" class="form-control" accept=".csv" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Xem trước</button>
+</form>
+
+@if (ViewBag.PreviewData != null)
+{
+    <h3 class="mt-4">Xem trước dữ liệu</h3>
+
+    <form asp-action="ProcessCsvImport" method="post">
+        <input type="hidden" name="confirmed" value="true" />
+        <table class="table table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Miêu tả</th>
+                    <th>Hình ảnh</th>
+                    <th>Danh mục</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.PreviewData)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>$@item.Price</td>
+                        <td>@item.Stock</td>
+                        <td>@item.Description</td>
+                        <td><img src="@item.ImageURL" alt="Hình ảnh" width="50" height="50" class="rounded-circle" /></td>
+                        <td>@item.CategoryName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <form asp-action="ProcessCsvImport" method="post">
+            <input type="hidden" name="confirmed" value="true" />
+            <button type="submit" class="btn btn-success">Xác nhận nhập dữ liệu</button>
+        </form>
+    </form>
+}

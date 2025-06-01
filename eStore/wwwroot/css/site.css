@@ -1,0 +1,79 @@
+﻿html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Căn giữa nội dung trong button */
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px; /* Đảm bảo chiều cao nhất quán */
+    padding: 8px 16px; /* Khoảng cách đều đặn */
+    white-space: nowrap; /* Ngăn chữ bị xuống dòng */
+    font-weight: 600; /* Làm chữ đậm hơn một chút */
+}
+
+/* Nút viền xanh */
+.btn-outline-primary {
+    border: 2px solid #007bff;
+    color: #007bff;
+    transition: all 0.3s ease;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white !important;
+    }
+
+/* Nút màu xanh đậm */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+/* Đảm bảo navbar căn giữa */
+.navbar-nav .nav-item {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-nav .nav-link {
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: #007bff !important; /* Màu xanh chủ đạo */
+        background-color: rgba(0, 123, 255, 0.1);
+        border-radius: 5px;
+    }
+
+.navbar-nav .dropdown-menu {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+

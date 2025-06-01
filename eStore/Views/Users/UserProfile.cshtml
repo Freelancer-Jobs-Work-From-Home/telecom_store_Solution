@@ -1,0 +1,148 @@
+﻿@model eStore.Models.User.UserViewModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Hồ sơ cá nhân</li>
+    </ol>
+</nav>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+                    <h2 class="text-center text-primary fw-bold">Hồ sơ cá nhân</h2>
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success text-center">@TempData["SuccessMessage"]</div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+                    }
+
+                    <div class="text-center">
+                        <!-- Avatar với hiệu ứng hover -->
+                        <div class="avatar-container position-relative d-inline-block">
+                            <img src="@Model.Avatar" alt="Avatar" class="rounded-circle border shadow" width="130" height="130">
+                            <form asp-controller="Users" asp-action="UploadAvatar" method="post" enctype="multipart/form-data" class="mt-2">
+                                <input type="file" name="ImageFile" accept="image/*" class="form-control d-none" id="avatarUpload" onchange="this.form.submit()">
+                                <label for="avatarUpload" class="btn btn-outline-secondary btn-sm mt-2">📷 Thay đổi ảnh</label>
+                            </form>
+                        </div>
+                    </div>
+
+
+                    <hr>
+
+                    <!-- Form Cập nhật thông tin -->
+                    <form asp-controller="Users" asp-action="UpdateProfile" method="post">
+                        <input type="hidden" asp-for="UserID" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và Tên</label>
+                            <div class="input-group">
+                                <span class="input-group-text">👤</span>
+                                <input type="text" class="form-control" asp-for="FullName" placeholder="Nhập họ và tên...">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text">📧</span>
+                                <input type="email" class="form-control" asp-for="Email" readonly>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Địa chỉ</label>
+                            <div class="input-group">
+                                <span class="input-group-text">📍</span>
+                                <input type="text" class="form-control" asp-for="Address" placeholder="Nhập địa chỉ...">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày sinh</label>
+                            <div class="input-group">
+                                <span class="input-group-text">📅</span>
+                                <input type="text" class="form-control" asp-for="DateOfBirth" id="dateOfBirth" placeholder="Chọn ngày sinh...">
+
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.Role))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Vai trò</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">🔰</span>
+                                    <input type="text" class="form-control" asp-for="Role" readonly>
+                                </div>
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">💾 Cập nhật thông tin</button>
+                    </form>
+
+                    <hr>
+
+                    <!-- Form Đổi mật khẩu -->
+                    <h4 class="text-danger text-center fw-bold">🔒 Đổi mật khẩu</h4>
+                    <form asp-controller="Users" asp-action="ChangePassword" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu hiện tại</label>
+                            <div class="input-group">
+                                <span class="input-group-text">🔑</span>
+                                <input type="password" name="currentPassword" class="form-control" required autocomplete="off" placeholder="Nhập mật khẩu hiện tại">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu mới</label>
+                            <div class="input-group">
+                                <span class="input-group-text">🔒</span>
+                                <input type="password" name="newPassword" class="form-control" required autocomplete="off" placeholder="Nhập mật khẩu mới">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger w-100 fw-bold">✔ Đổi mật khẩu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Hiệu ứng hover avatar */
+    .avatar-container img {
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .avatar-container img:hover {
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            flatpickr("#dateOfBirth", {
+                dateFormat: "d/m/Y",
+                allowInput: true
+            });
+        });
+    </script>
+}
+

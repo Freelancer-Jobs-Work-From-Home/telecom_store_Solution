@@ -1,0 +1,43 @@
+﻿@model eStore.Models.Order.OrderViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Chi tiết đơn hàng</li>
+    </ol>
+</nav>
+<h2>Chi tiết đơn hàng</h2>
+
+<div>
+    <p><strong>Mã đơn hàng:</strong> @Model.OrderID</p>
+    <p><strong>Người đặt:</strong> @Model.FullName</p>
+    <p><strong>Tổng tiền:</strong> @Model.TotalPrice.ToString("#,##0 VNĐ")</p>
+    <p><strong>Trạng thái:</strong> @Model.Status</p>
+    <p><strong>Ngày đặt hàng:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+</div>
+
+<h3>Danh sách sản phẩm</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Số lượng</th>
+            <th>Giá</th>
+            <th>Thành tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderDetails)
+        {
+            <tr>
+                <td>@item.Quantity</td>
+                <td>@item.Price.ToString("N0") VNĐ</td>
+                <td>@((item.Quantity * item.Price).ToString("N0")) VNĐ</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-controller="Home" asp-action="Index" class="btn btn-primary">Quay lại trang chủ</a>

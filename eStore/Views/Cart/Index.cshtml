@@ -1,0 +1,89 @@
+﻿@model List<eStore.Models.Cart.CartItemViewModel>
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4">Giỏ hàng của bạn 🛒</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p class="alert alert-warning">Giỏ hàng của bạn đang trống.</p>
+}
+else
+{
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Tổng</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><img src="@item.ImageURL" alt="@item.Name" width="80" class="img-thumbnail"></td>
+                    <td>@item.Name</td>
+                    <td>@item.Price.ToString("#,##0") VND</td>
+                    <td>
+                        <input type="number" class="form-control text-center update-quantity" data-id="@item.ProductID" value="@item.Quantity" data-max="@item.AvailableQuantity" min="1">
+                    </td>
+                    <td class="total-price" data-id="@item.ProductID">@((item.Price * item.Quantity).ToString("#,##0")) VND</td>
+                    <td>
+                        <button class="btn btn-danger remove-item-cart" data-id="@item.ProductID">
+                            <i class="fa fa-trash"></i> Xóa
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <a href="/" class="btn btn-secondary">🔙 Tiếp tục mua sắm</a>
+
+        <div class="d-flex gap-3">
+            <input type="text" id="discountInput" class="form-control w-50" placeholder="Nhập mã giảm giá">
+            <button type="button" id="applyDiscount" class="btn btn-info">Áp dụng</button>
+        </div>
+        <div class="d-flex gap-3">
+            <button id="removeDiscount" class="btn btn-danger text-end mt-2">Xóa mã giảm giá</button>
+        </div>
+        
+    </div>
+
+    <p id="discountMessage" class="text-danger text-end mt-2"></p>
+
+    
+
+    <div class="text-end mt-3">
+        <h4>Tổng tiền: <span id="totalPrice">@Model.Sum(x => x.Price * x.Quantity).ToString("#,##0") VND</span></h4>
+    </div>
+
+    <div class="text-end mt-3">
+        <form asp-action="CreateOrder" asp-controller="Order" method="post">
+            <input type="hidden" name="userId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+            <input type="hidden" name="discountCode" value="" id="discountCode" />
+
+            @for (var i = 0; i < Model.Count; i++)
+            {
+                <input type="hidden" name="cartItems[@i].ProductID" value="@Model[i].ProductID" />
+                <input type="hidden" name="cartItems[@i].Quantity" value="@Model[i].Quantity" />
+                <input type="hidden" name="cartItems[@i].Price" value="@Model[i].Price" />
+            }
+
+            <button type="submit" class="btn btn-primary">💳 Tiến hành thanh toán</button>
+        </form>
+    </div>
+}

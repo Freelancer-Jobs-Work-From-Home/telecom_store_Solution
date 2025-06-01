@@ -1,0 +1,225 @@
+﻿@model eStore.Models.Home.HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="row">
+    <!--banner slider start-->
+    <div class="col-12">
+        <div class="banner_slider slider_two">
+            <div class="slider_active owl-carousel">
+                <div class="single_slider" style="background-image: url(https://www.vnpt-technology.vn/storage/photos/shares/Anh_Up_Tin_Tuc/23.jpg)">
+                </div>
+                <div class="single_slider" style="background-image: url(https://www.vnpt-technology.vn/storage/photos/shares/Anh_Up_Tin_Tuc/2.jpg)">
+                    
+                </div>
+                <div class="single_slider" style="background-image: url(https://www.vnpt-technology.vn/storage/photos/shares/Anh_Up_Tin_Tuc/bannner123.jpg)">
+                    
+                </div>
+
+                <div class="single_slider" style="background-image: url(https://www.vnpt-technology.vn/storage/photos/shares/banner-main-index/01.png)">
+                </div>
+            </div>
+        </div>
+        <!--banner slider start-->
+
+        <div class="product_filter_area">
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm sản phẩm...">
+                </div>
+                <div class="col-md-3">
+                    <select id="categoryFilter" class="form-control">
+                        <option value="">Tất cả danh mục</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.CategoryID">@category.CategoryName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" id="minPrice" class="form-control" placeholder="Giá thấp nhất">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" id="maxPrice" class="form-control" placeholder="Giá cao nhất">
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="new_product_area product_two m-4" id="product-container">
+        </div>
+        <!--new product area start-->
+        <div class="new_product_area product_two">
+            <div class="row">
+                <div class="col-12">
+                    <div class="block_title">
+                        <h3>Sản phẩm viễn thông</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                @if (Model.TelecomProducts != null && Model.TelecomProducts.Any())
+                {
+                    <div class="single_p_active owl-carousel">
+                        @foreach (var product in Model.TelecomProducts)
+                        {
+                            <div class="col-lg-3">
+                                <div class="single_product">
+                                    <div class="product_thumb">
+                                        <a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@product.ProductID">
+                                            <img src="@product.ImageURL" alt="@product.Name" style="width: 265px !important; height: 265px !important; object-fit: contain  !important;">
+                                        </a>
+                                        <div class="product_action">
+                                            <a href="#" class="add-to-cart" data-id="@product.ProductID"> <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng</a>
+                                        </div>
+                                    </div>
+                                    <div class="product_content">
+                                        <span class="product_price">@product.Price.ToString("#,##0") VND</span>
+                                        <h3 class="product_title"><a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@product.ProductID">@product.Name</a></h3>
+                                    </div>
+                                    <div class="product_info">
+                                        <ul>
+                                            <li><a href="#" title=" Add to Wishlist ">Thêm vào Wishlist</a></li>
+                                            <li><a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@product.ProductID" title="Xem chi tiết">Chi tiết</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="col-12 text-center">
+                        <p class="alert alert-warning">Không có sản phẩm nào để hiển thị.</p>
+                    </div>
+                }
+            </div>
+        </div>
+        <!--new product area start-->
+
+        <!--featured product area start-->
+        <div class="new_product_area product_two" >
+            <div class="row">
+                <div class="col-12">
+                    <div class="block_title">
+                        <h3>Sản phẩm tiêu dùng</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                @if (Model.ConsumerProducts != null && Model.ConsumerProducts.Any())
+                {
+                    <div class="single_p_active owl-carousel">
+                        @foreach (var product in Model.ConsumerProducts)
+                        {
+                            <div class="col-lg-3">
+                                <div class="single_product">
+                                    <div class="product_thumb">
+                                        <a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@product.ProductID">
+                                            <img src="@product.ImageURL" alt="@product.Name" style="width: 265px !important; height: 265px !important; object-fit: contain  !important;">
+                                        </a>
+                                        <div class="product_action">
+                                            <a href="#" class="add-to-cart" data-id="@product.ProductID"> <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng</a>
+                                        </div>
+                                    </div>
+                                    <div class="product_content">
+                                        <span class="product_price">@product.Price.ToString("#,##0") VND</span>
+                                        <h3 class="product_title"><a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@product.ProductID">@product.Name</a></h3>
+                                    </div>
+                                    <div class="product_info">
+                                        <ul>
+                                            <li><a href="#" title=" Add to Wishlist ">Thêm vào Wishlist</a></li>
+                                            <li><a asp-controller="Home" asp-action="ProductDetail" asp-route-id="@product.ProductID" title="Xem chi tiết">Chi tiết</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="col-12 text-center">
+                        <p class="alert alert-warning">Không có sản phẩm nào để hiển thị.</p>
+                    </div>
+                }
+            </div>
+
+
+
+            @await Html.PartialAsync("_FeedbackPartial", Model.FeedbackViewModel)
+
+            <script>
+                // Sự kiện tìm kiếm và lọc sản phẩm
+                $(document).ready(function () {
+                    function fetchProducts() {
+                        let searchQuery = $('#searchInput').val();
+                        let category = $('#categoryFilter').val();
+                        let minPrice = $('#minPrice').val();
+                        let maxPrice = $('#maxPrice').val();
+
+                        $.ajax({
+                            url: '/Home/FilterProducts',  // API lọc sản phẩm
+                            type: 'GET',
+                            data: {
+                                search: searchQuery,
+                                category: category,
+                                minPrice: minPrice,
+                                maxPrice: maxPrice
+                            },
+                            success: function (response) {
+                                $('#product-container').html(response); // Cập nhật danh sách sản phẩm
+                            },
+                            error: function () {
+                                alert("Lỗi khi tải sản phẩm!");
+                            }
+                        });
+                    }
+
+                    // Gọi filter khi nhập hoặc thay đổi giá trị
+                    $('#searchInput, #categoryFilter, #minPrice, #maxPrice').on('input change', function () {
+                        fetchProducts();
+                    });
+
+                });
+
+
+            </script>
+            
+
+            @if (TempData["SuccessFeedbackMessage"] != null)
+            {
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var modal = new bootstrap.Modal(document.getElementById('feedbackSuccessModal'));
+                        modal.show();
+                    });
+                </script>
+            }
+
+            <!-- Modal thông báo -->
+            <div class="modal fade" id="feedbackSuccessModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalTitle">Thông báo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            @TempData["SuccessFeedbackMessage"]
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--featured product area start-->
+        
+    </div>
+</div>
+

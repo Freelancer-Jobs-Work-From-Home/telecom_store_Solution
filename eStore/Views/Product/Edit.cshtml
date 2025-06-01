@@ -1,0 +1,155 @@
+﻿@model eStore.Models.Product.ProductViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["ActivePage"] = "Product";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-edit"></i> Chỉnh sửa sản phẩm</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="ProductID" />
+
+                <div class="row">
+                    <!-- Cột trái: Nhập thông tin -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold">Tên sản phẩm</label>
+                            <input asp-for="Name" class="form-control shadow-sm" placeholder="Nhập tên sản phẩm" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label fw-bold">Giá</label>
+                            <input asp-for="Price" class="form-control shadow-sm" type="number" step="0.01" placeholder="Nhập giá" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Stock" class="form-label fw-bold">Số lượng</label>
+                            <input asp-for="Stock" class="form-control shadow-sm" type="number" placeholder="Nhập số lượng" />
+                            <span asp-validation-for="Stock" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label fw-bold">Danh mục</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-light"><i class="fas fa-list"></i></span>
+                                <select asp-for="CategoryId" class="form-select">
+                                    <option value="">-- Chọn danh mục --</option>
+                                    @if (ViewBag.Categories != null)
+                                    {
+                                        @foreach (var category in ViewBag.Categories)
+                                        {
+                                            <option value="@category.CategoryID" selected="@(category.CategoryID == Model.CategoryId)">
+                                                @category.CategoryName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Cột phải: Ảnh và mô tả -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control shadow-sm" rows="4" placeholder="Nhập mô tả sản phẩm"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ImageFile" class="form-label fw-bold">Hình ảnh mới</label>
+                            <div class="input-group shadow-sm">
+                                <input type="file" asp-for="ImageFile" class="form-control d-none" id="fileInput" onchange="updateFileName()" />
+                                <label for="fileInput" class="input-group-text btn btn-outline-secondary">
+                                    <i class="fas fa-upload"></i> Chọn ảnh
+                                </label>
+                                <input type="text" id="fileName" class="form-control bg-white" readonly placeholder="Chưa chọn tệp" />
+                            </div>
+                            <span asp-validation-for="ImageFile" class="text-danger"></span>
+                        </div>
+
+                        <!-- Hiển thị ảnh hiện tại -->
+                        @if (!string.IsNullOrEmpty(Model.ImageURL))
+                        {
+                            <div class="text-center mt-3">
+                                <label class="form-label fw-bold">Hình ảnh hiện tại</label>
+                                <br />
+                                <img src="@Model.ImageURL" alt="Current Image" class="img-thumbnail shadow-sm" style="max-width: 180px; border-radius: 8px;" />
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary px-4">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <script>
+            function updateFileName() {
+                const fileInput = document.getElementById('fileInput');
+                const fileName = document.getElementById('fileName');
+                fileName.value = fileInput.files.length > 0 ? fileInput.files[0].name : "Chưa chọn tệp";
+            }
+        </script>
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .card {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 16px;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 10px 16px;
+    }
+
+    .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+
+    .form-select, .form-control {
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .btn-outline-secondary {
+        border-radius: 8px;
+        cursor: pointer;
+    }
+</style>

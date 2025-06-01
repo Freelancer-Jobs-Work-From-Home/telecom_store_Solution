@@ -1,0 +1,83 @@
+﻿@model eStore.Models.Auth.RegisterViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Đăng ký</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/fonts/iconic/css/material-design-iconic-font.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/vendor/animate/animate.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/vendor/css-hamburgers/hamburgers.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/vendor/animsition/css/animsition.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/vendor/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/css/util.css">
+    <link rel="stylesheet" type="text/css" href="~/Auth/css/main.css">
+</head>
+<body>
+    <div class="limiter">
+        <div class="container-login100" style="background-image: url('/Auth/images/bg-01.jpg');">
+            <div class="wrap-login100">
+                <form class="login100-form validate-form" asp-action="Register" method="post">
+                    <span class="login100-form-logo">
+                        <i class="zmdi zmdi-landscape"></i>
+                    </span>
+
+                    <span class="login100-form-title p-b-34 p-t-27">
+                        Đăng ký
+                    </span>
+
+                    <div class="wrap-input100 validate-input" data-validate="Nhập Họ và Tên">
+                        <input class="input100" asp-for="FullName" placeholder="Họ và Tên">
+                        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="wrap-input100 validate-input" data-validate="Nhập Email">
+                        <input class="input100" asp-for="Email" placeholder="Email">
+                        <span class="focus-input100" data-placeholder="&#xf207;"></span>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="wrap-input100 validate-input" data-validate="Nhập mật khẩu">
+                        <input class="input100" asp-for="Password" type="password" placeholder="Mật khẩu">
+                        <span class="focus-input100" data-placeholder="&#xf191;"></span>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="wrap-input100 validate-input" data-validate="Nhập lại mật khẩu">
+                        <input class="input100" asp-for="ConfirmPassword" type="password" placeholder="Xác nhận mật khẩu">
+                        <span class="focus-input100" data-placeholder="&#xf191;"></span>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="container-login100-form-btn mt-2">
+                        <button type="submit" class="login100-form-btn">
+                            Đăng ký
+                        </button>
+                    </div>
+
+                    <div class="text-center p-t-90">
+                        <a class="txt1" asp-action="Login">
+                            Đã có tài khoản? Đăng nhập
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Auth/js/main.js"></script>
+</body>
+</html>

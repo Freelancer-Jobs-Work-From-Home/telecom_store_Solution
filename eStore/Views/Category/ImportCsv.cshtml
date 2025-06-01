@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Nhập danh mục từ CSV";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["ActivePage"] = "Category";
+}
+
+<h2>Nhập danh mục từ CSV</h2>
+
+<!-- Hiển thị thông báo lỗi / thành công -->
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<!-- Form upload file CSV -->
+<form asp-action="PreviewCategoryCsv" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">Chọn file CSV</label>
+        <input type="file" name="file" class="form-control" accept=".csv" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Xem trước</button>
+</form>
+
+@if (ViewBag.PreviewData != null)
+{
+    <h3 class="mt-4">Xem trước danh mục</h3>
+
+    <form asp-action="ProcessCsvImport" method="post">
+        <input type="hidden" name="confirmed" value="true" />
+        <table class="table table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Tên danh mục</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < ViewBag.PreviewData.Count; i++)
+                {
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@ViewBag.PreviewData[i].CategoryName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-success">Xác nhận nhập danh mục</button>
+    </form>
+}

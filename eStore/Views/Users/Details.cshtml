@@ -1,0 +1,61 @@
+﻿@model eStore.Models.User.UserViewModel
+
+@{
+    ViewData["Title"] = "Chi Tiết Người Dùng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewData["ActivePage"] = "User";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="row g-0">
+            <!-- Cột ảnh đại diện -->
+            <div class="col-md-4 bg-light text-center d-flex flex-column align-items-center justify-content-center p-4">
+                <div class="position-relative">
+                    <img src="@(string.IsNullOrEmpty(Model.Avatar) ? "https://via.placeholder.com/150" : Model.Avatar)"
+                         class="rounded-circle border border-4 shadow"
+                         alt="Ảnh đại diện"
+                         style="width: 150px; height: 150px; object-fit: cover;" />
+                    <span class="badge bg-primary position-absolute bottom-0 start-50 translate-middle-x px-3 py-1 rounded-pill">@Model.Role</span>
+                </div>
+            </div>
+
+            <!-- Cột thông tin người dùng -->
+            <div class="col-md-8 p-4">
+                <h4 class="text-primary border-bottom pb-2 mb-4">
+                    <i class="fas fa-user-circle"></i> Thông Tin Người Dùng
+                </h4>
+                <dl class="row">
+                    <dt class="col-sm-4 text-muted fw-bold">
+                        <i class="fas fa-envelope"></i> Họ và tên
+                    </dt>
+                    <dd class="col-sm-8">@Model.FullName</dd>
+                    <dt class="col-sm-4 text-muted">
+                        <i class="fas fa-envelope"></i> Email
+                    </dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Email</dd>
+
+                    <dt class="col-sm-4 text-muted">
+                        <i class="fas fa-map-marker-alt"></i> Địa chỉ
+                    </dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Address</dd>
+
+                    <dt class="col-sm-4 text-muted">
+                        <i class="fas fa-birthday-cake"></i> Ngày sinh
+                    </dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.DateOfBirth.ToString("dd/MM/yyyy")</dd>
+                </dl>
+
+                <!-- Nút điều hướng -->
+                <div class="mt-4 text-center">
+                    <a asp-action="Edit" asp-route-id="@Model?.UserID" class="btn btn-warning px-4 mx-2 shadow">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary px-4 mx-2 shadow">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

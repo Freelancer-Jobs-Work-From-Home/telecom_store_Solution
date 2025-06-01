@@ -1,0 +1,277 @@
+﻿@using eStore.Helper
+@using eStore.Models.Cart
+@{
+    var categoryList = ViewBag.Categories as List<eStore.Models.Category.CategoryViewModel>;
+    var tdCategories = categoryList?.Where(c => c.CategoryName.StartsWith("TD:")).ToList();
+    var vtCategories = categoryList?.Where(c => c.CategoryName.StartsWith("VT:")).ToList();
+    var cart = Context.Session.GetObjectFromJson<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
+    var cartCount = cart.Sum(p => p.Quantity);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - eStore</title>
+  
+    <link rel="stylesheet" href="~/HomePage/assets/css/plugin.css">
+    <link rel="stylesheet" href="~/HomePage/assets/css/bundle.css">
+    <link rel="stylesheet" href="~/HomePage/assets/css/style.css">
+    <link rel="stylesheet" href="~/HomePage/assets/css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script src="~/HomePage/assets/js/vendor/modernizr-2.8.3.min.js"></script>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/eStore.styles.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm p-3 rounded">
+            
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center fw-bold text-primary fs-4" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="https://www.vnpt-technology.vn/front/images/logo_vnpt_technology_vn.svg" alt="Logo" height="40" class="me-2">
+                </a>
+
+                <!-- Toggle Button for Mobile -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Search Bar -->
+                    
+
+                    <!-- Navigation Links -->
+                    <ul class="navbar-nav mx-auto gap-3">
+                        <li class="nav-item">
+                            <a class="nav-link active fw-semibold px-2" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                        <a class="nav-link active fw-semibold px-2" href="#product-container">Sản phẩm</a>
+                        </li>
+                        
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-semibold px-3 text-dark" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-list"></i> Danh mục
+                        </a>
+                        @(await Component.InvokeAsync("CategoryMenu")).
+
+                    </li>
+
+                    <!-- User Authentication Links -->
+                    <div class="shopping_cart ">
+                            <a href="#"><i class="fa fa-shopping-cart"></i>
+                                    @{
+                                        if(cartCount > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle" id="cart-count">@cartCount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle" id="cart-count">0</span>
+                                    }
+                                }</a>
+
+                            <!--mini cart-->
+                            @if(cart.Count > 0){
+                                <div class="mini_cart">
+                                    @foreach (var item in cart)
+                                    {
+                                        <div class="cart_item">
+                                            <div class="cart_img">
+                                                <a href="#"><img src="@item.ImageURL" alt="@item.Name"></a>
+                                            </div>
+                                            <div class="cart_info">
+                                                <a href="#">@item.Name</a>
+                                                <span class="cart_price">@item.Price.ToString("#,##0") VND</span>
+                                                <span class="quantity">Qty: @item.Quantity</span>
+                                            </div>
+                                            <div class="cart_remove">
+                                                <a title="Xóa" href="#" class="remove-from-cart" data-id="@item.ProductID"><i class="fa fa-times-circle"></i></a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (cart.Count > 0)
+                                    {
+                                        <div class="cart_button">
+                                            <a asp-controller="Cart" asp-action="Index" class="btn btn-primary">Giỏ hàng</a>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mini_cart">
+                                    <div class="cart_item">
+                                        <p>Chưa có sản phẩm trong giỏ hàng</p>
+                                    </div>
+                                    
+                                </div>
+                            }
+
+                        <!--mini cart end-->
+                        </div>
+
+                        <!-- Modal Thông báo Giỏ hàng -->
+                        <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="cartModalLabel">Thông báo</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Nội dung sẽ được cập nhật bởi JavaScript -->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tiếp tục mua sắm</button>
+                                        <a href="/Cart" class="btn btn-primary">Xem giỏ hàng</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <ul class="navbar-nav ms-auto align-items-center gap-2">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        👤 Xin chào, @User.Identity.Name
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Order" asp-action="OrderHistory">📜 Lịch sử đặt hàng</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Users" asp-action="UserProfile">ℹ️ Thông tin của bạn</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" asp-controller="Auth" asp-action="Logout">🚪 Đăng xuất</a></li>
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="btn btn-outline-primary rounded-pill px-4" asp-controller="Auth" asp-action="Login">Đăng nhập</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="btn btn-primary rounded-pill px-4 text-white" asp-controller="Auth" asp-action="Register">Đăng ký</a>
+                                </li>
+                            }
+                        </ul>
+                </div>
+            
+        </nav>
+
+
+    </header>
+
+    <div class="container mt-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+            
+        </main>
+    </div>
+
+    
+    
+
+    @* footer *@
+
+    <div class="footer_area">
+        <div class="footer_top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="footer_widget">
+                            <h3> Giới thiệu về chúng tôi</h3>
+                            <p>
+                                Nội dung giới thiệu 
+                            </p>
+                            <p>
+                               Chỉnh trong eStore/Views/Share/_Layout.cshtml ==> Kéo xuống dưới cùng
+                            </p>
+                            <div class="footer_widget_contect">
+                                <p><i class="fa fa-map-marker" aria-hidden="true"></i> Địa chỉ thực </p>
+
+                                <p><i class="fa fa-mobile" aria-hidden="true"></i> Số điện thoại</p>
+                                <a href="#"><i class="fa fa-envelope-o" aria-hidden="true"></i> Địa chỉ email </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="footer_widget">
+                            <h3>Tài khoản</h3>
+                            <ul>
+                                <li><a href="#">Tài khoản của bạn</a></li>
+                                <li><a href="#">Đơn hàng</a></li>
+                                <li><a href="#">Địa chỉ</a></li>
+                                <li><a href="#">Đăng nhập</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="footer_widget">
+                            <h3>Thông tin cửa hàng</h3>
+                            <ul>
+                                <li><a href="#">Đặc biệt</a></li>
+                                <li><a href="#">Về cửa hàng chúng tôi</a></li>
+                                <li><a href="#">Thông tin điều khoản và bảo mật</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6">
+                        <div class="footer_widget">
+                            <h3>Thông tin thêm</h3>
+                            <ul>
+                                <li><a href="#"> Thương hiệu </a></li>
+                                <li><a href="#"> Phiếu quà tặng </a></li>
+                                <li><a href="#"> Đối tác liên kết </a></li>
+                                <li><a href="#"> Khuyến mãi đặc biệt </a></li>
+                                <li><a href="#"> Chính sách bảo mật </a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="footer_bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="copyright_area">
+                            <ul>
+                                <li><a href="#about_us_section"> Về chúng tôi </a></li>
+                                <li><a href="#"> Sản phẩm </a></li>
+                                <li><a href="#">  Privacy Policy  </a></li>
+                            </ul>
+                            <p>Copyright &copy; 2018 <a href="#">Pos Coron</a>. All rights reserved. </p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- all js here -->
+    
+    <script src="~/HomePage/assets/js/popper.js"></script>
+    <script src="~/HomePage/assets/js/ajax-mail.js"></script>
+    <script src="~/HomePage/assets/js/plugins.js"></script>
+    <script src="~/HomePage/assets/js/main.js"></script>
+
+    
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

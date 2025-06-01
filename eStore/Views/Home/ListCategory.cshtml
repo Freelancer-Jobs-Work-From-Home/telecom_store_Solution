@@ -1,0 +1,41 @@
+﻿@using System.Globalization
+@model eStore.Models.Home.CategoryProductsViewModel
+
+<div class="container mt-5">
+    <h3 class="text-center mb-5" style="font-size: 2rem; font-weight: 600;">Danh sách sản phẩm - @Model.Category.CategoryName</h3>
+
+    <div class="row">
+        @foreach (var product in Model.Products)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                <div class="card h-100 shadow-sm border-light rounded">
+                    <img src="@product.ImageURL" class="card-img-top" alt="@product.Name" style="object-fit: contain; height: 250px; border-bottom: 1px solid #ddd;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-truncate" style="font-size: 1.25rem; font-weight: 500; color: #333;">@product.Name</h5>
+
+                        <!-- Mô tả sản phẩm -->
+                        <p class="card-text text-muted truncate-text" style="font-size: 0.95rem; color: #555;">
+                            @product.Description
+                        </p>
+
+                        <p class="text-success fw-bold" style="font-size: 1.1rem;">
+                            @product.Price.ToString("C0", new CultureInfo("vi-VN"))
+                        </p>
+                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ProductID })" class="btn btn-primary mt-auto py-2" style="font-size: 1rem; border-radius: 20px;">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- CSS bổ sung cho mô tả -->
+<style>
+    .truncate-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Hiển thị tối đa 2 dòng */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Thêm dấu "..." khi tràn */
+    }
+</style>
