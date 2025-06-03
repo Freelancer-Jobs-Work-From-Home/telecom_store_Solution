@@ -19,10 +19,15 @@ namespace eStore.Models.User
         public string Address { get; set; }
         [Display(Name = "Hình ảnh")]
         public string Avatar { get; set; }
-        [Required (ErrorMessage = "Mật khẩu không được để trống")]
         [Display(Name = "Mật khẩu")]
+        [DataType(DataType.Password)]
+        public string? Password { get; set; }
 
-        public string Password { get; set; }
+        [Display(Name = "Xác nhận mật khẩu")]
+        [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
+        public string? ConfirmPassword { get; set; }
+
         [Display(Name = "Ngày sinh")]
         [Required(ErrorMessage = "Ngày sinh không được để trống")]
         public DateTime DateOfBirth { get; set; }

@@ -14,7 +14,6 @@ namespace eStore.Models.Product
         public string Name { get; set; }
         
         [Display(Name = "Miêu tả")]
-        [Required(ErrorMessage = "Mô tả không được để trống")]
         public string Description { get; set; }
         
         [Display(Name = "Giá")]
@@ -28,11 +27,11 @@ namespace eStore.Models.Product
         public int Stock { get; set; }
         
         [Display(Name = "Hình ảnh")]
-        public string ImageURL { get; set; }
+        public string? ImageURL { get; set; }
         [Ignore]
         public Guid CategoryId { get; set; }
         [Display(Name = "Danh mục")]
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
         [Ignore]
         public IFormFile ImageFile { get; set; }
         [Ignore]

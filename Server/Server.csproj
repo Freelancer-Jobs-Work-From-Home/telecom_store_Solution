@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Upload\images\products\" />
     <Folder Include="Upload\images\users\" />
     <Folder Include="ViewModel\Excel\" />
   </ItemGroup>

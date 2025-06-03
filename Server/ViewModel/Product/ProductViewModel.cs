@@ -14,8 +14,7 @@ namespace Server.ViewModel.Product
         public string Name { get; set; }
         
         [Display(Name = "Miêu tả")]
-        [Required(ErrorMessage = "Mô tả không được để trống")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         
         [Display(Name = "Giá")]
         [Required(ErrorMessage = "Giá sản phẩm không được để trống")]

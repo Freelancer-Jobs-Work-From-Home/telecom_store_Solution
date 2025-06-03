@@ -67,12 +67,12 @@
                     <option value="">-- Chọn danh mục --</option>
                     @if (ViewBag.Categories != null)
                     {
-                        @foreach (var category in ViewBag.Categories)
+                        foreach (var category in ViewBag.Categories as List<eStore.Models.Category.CategoryViewModel>)
                         {
                             <option value="@category.CategoryID">@category.CategoryName</option>
                         }
                     }
-                </select>
+                    </select>
             </div>
             <span asp-validation-for="CategoryId" class="text-danger"></span>
         </div>

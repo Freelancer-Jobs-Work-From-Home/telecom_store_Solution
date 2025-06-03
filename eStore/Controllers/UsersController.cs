@@ -111,32 +111,55 @@ namespace eStore.Controllers
             ModelState.Remove("Avatar");
             if (!ModelState.IsValid) return View(model);
 
-            // Xử lý ảnh nếu có ảnh mới
-            if (model.ImageFile != null && model.ImageFile.Length > 0)
+
+            if (!string.IsNullOrEmpty(model.Password) || !string.IsNullOrEmpty(model.ConfirmPassword))
             {
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/users");
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                if (model.Password != model.ConfirmPassword)
                 {
-                    await model.ImageFile.CopyToAsync(stream);
+                    ModelState.AddModelError("ConfirmPassword", "Mật khẩu xác nhận không khớp");
                 }
-
-                // Lưu chỉ tên file
-                model.Avatar = uniqueFileName;
             }
 
-            var json = JsonConvert.SerializeObject(model);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync($"User/{id}", content);
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Nếu không chọn ảnh mới, giữ ảnh cũ
+            if (model.ImageFile == null || model.ImageFile.Length == 0)
+            {
+                var currentUser = await _httpClient.GetFromJsonAsync<UserViewModel>($"User/{id}");
+                model.Avatar = currentUser?.Avatar;
+            }
+
+            // Tạo form dữ liệu gửi đi (multipart/form-data)
+            using var form = new MultipartFormDataContent();
+            form.Add(new StringContent(model.FullName ?? ""), "FullName");
+            form.Add(new StringContent(model.Email ?? ""), "Email");
+            form.Add(new StringContent(model.Address ?? ""), "Address");
+            form.Add(new StringContent(model.Role ?? ""), "Role");
+            form.Add(new StringContent(model.DateOfBirth.ToString("o")), "DateOfBirth");
+
+            // Chỉ gửi mật khẩu nếu có nhập (để tránh xóa mật khẩu cũ trên server)
+            if (!string.IsNullOrWhiteSpace(model.Password))
+            {
+                form.Add(new StringContent(model.Password), "Password");
+                form.Add(new StringContent(model.ConfirmPassword ?? ""), "ConfirmPassword");
+            }
+
+            // Gửi ảnh đại diện mới (nếu có)
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var fileContent = new StreamContent(model.ImageFile.OpenReadStream());
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(model.ImageFile.ContentType);
+                form.Add(fileContent, "ImageFile", model.ImageFile.FileName);
+            }
+            var response = await _httpClient.PutAsync($"User/{id}", form);
 
             if (!response.IsSuccessStatusCode)
+            {
                 return View(model);
-
+            }
             return RedirectToAction("Index");
         }
 
@@ -173,5 +196,6 @@ namespace eStore.Controllers
             var user = JsonConvert.DeserializeObject<UserViewModel>(content);
             return View(user);
         }
+
     }
 }

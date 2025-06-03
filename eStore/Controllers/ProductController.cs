@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using eStore.Models.Category;
+using System.Text;
+using BussinessObject.Models;
 
 
 namespace eStore.Controllers
@@ -22,14 +25,31 @@ namespace eStore.Controllers
         public async Task<IActionResult> Index()
         {
             var response = await _httpClient.GetAsync("Product");
-            if (!response.IsSuccessStatusCode) return View(new List<ProductViewModel>());
+            var products = new List<ProductViewModel>();
 
-            var content = await response.Content.ReadAsStringAsync();
-            var products = JsonConvert.DeserializeObject<List<ProductViewModel>>(content);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                products = JsonConvert.DeserializeObject<List<ProductViewModel>>(content);
+            }
+
+            var categoryResponse = await _httpClient.GetAsync("Category");
+            if (categoryResponse.IsSuccessStatusCode)
+            {
+                var categoryContent = await categoryResponse.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryViewModel>>(categoryContent);
+
+                ViewBag.Categories = categories;
+            }
+            else
+            {
+                ViewBag.Categories = new List<CategoryViewModel>();
+            }
+
             return View(products);
         }
 
-        public async Task<IActionResult> Detail(Guid id)
+        public async Task<IActionResult> Details(Guid id)
         {
             var response = await _httpClient.GetAsync($"Product/{id}");
             if (!response.IsSuccessStatusCode) return NotFound();
@@ -39,8 +59,20 @@ namespace eStore.Controllers
             return View(product);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var categoryResponse = await _httpClient.GetAsync("Category");
+            if (categoryResponse.IsSuccessStatusCode)
+            {
+                var categoryContent = await categoryResponse.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryViewModel>>(categoryContent);
+
+                ViewBag.Categories = categories;
+            }
+            else
+            {
+                ViewBag.Categories = new List<CategoryViewModel>();
+            }
             return View();
         }
 
@@ -71,7 +103,7 @@ namespace eStore.Controllers
 
             var content = new MultipartFormDataContent();
             content.Add(new StringContent(model.Name), "Name");
-            content.Add(new StringContent(model.Description), "Description");
+            content.Add(new StringContent(model.Description, Encoding.UTF8), "Description");
             content.Add(new StringContent(model.Price.ToString()), "Price");
             content.Add(new StringContent(model.Stock.ToString()), "Stock");
             content.Add(new StringContent(model.CategoryId.ToString()), "CategoryId");
@@ -96,6 +128,19 @@ namespace eStore.Controllers
 
             var content = await response.Content.ReadAsStringAsync();
             var product = JsonConvert.DeserializeObject<ProductViewModel>(content);
+
+            var categoryResponse = await _httpClient.GetAsync("Category");
+            if (categoryResponse.IsSuccessStatusCode)
+            {
+                var categoryContent = await categoryResponse.Content.ReadAsStringAsync();
+                var categories = JsonConvert.DeserializeObject<List<CategoryViewModel>>(categoryContent);
+
+                ViewBag.Categories = categories;
+            }
+            else
+            {
+                ViewBag.Categories = new List<CategoryViewModel>();
+            }
             return View(product);
         }
 

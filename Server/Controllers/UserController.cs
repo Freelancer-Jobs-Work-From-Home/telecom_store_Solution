@@ -117,6 +117,12 @@ namespace Server.Controllers
             user.DateOfBirth = model.DateOfBirth;
             user.Role = model.Role;
 
+            if (!string.IsNullOrWhiteSpace(model.Password))
+            {
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            }
+            // Nếu rỗng => không đổi mật khẩu
+
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
                 var projectRoot = Directory.GetCurrentDirectory();
@@ -156,5 +162,36 @@ namespace Server.Controllers
 
             return Ok(new { message = "Xoá người dùng thành công" });
         }
+
+        [HttpGet("Search")]
+        public IActionResult Search([FromQuery] string? keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return BadRequest(new { message = "Từ khóa tìm kiếm không được để trống" });
+            }
+
+            var users = _userService.GetAll()
+                .Where(u =>
+                    (!string.IsNullOrEmpty(u.FullName) && u.FullName.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(u.Email) && u.Email.Contains(keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(u.Role) && u.Role.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                )
+                .Select(user => new
+                {
+                    user.UserID,
+                    user.FullName,
+                    user.Email,
+                    user.Address,
+                    user.Avatar,
+                    user.DateOfBirth,
+                    user.Role,
+                    CanDelete = _userService.CanDelete(user.UserID)
+                })
+                .ToList();
+
+            return Ok(users);
+        }
+
     }
 }

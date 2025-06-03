@@ -44,11 +44,9 @@
                                     <option value="">-- Chọn danh mục --</option>
                                     @if (ViewBag.Categories != null)
                                     {
-                                        @foreach (var category in ViewBag.Categories)
+                                        foreach (var category in ViewBag.Categories as List<eStore.Models.Category.CategoryViewModel>)
                                         {
-                                            <option value="@category.CategoryID" selected="@(category.CategoryID == Model.CategoryId)">
-                                                @category.CategoryName
-                                            </option>
+                                            <option value="@category.CategoryID">@category.CategoryName</option>
                                         }
                                     }
                                 </select>
@@ -61,7 +59,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label asp-for="Description" class="form-label fw-bold">Mô tả</label>
-                            <textarea asp-for="Description" class="form-control shadow-sm" rows="4" placeholder="Nhập mô tả sản phẩm"></textarea>
+                            <textarea asp-for="Description" class="form-control shadow-sm" style="height: 150px;" placeholder="Nhập mô tả sản phẩm"></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
 

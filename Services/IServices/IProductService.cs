@@ -19,5 +19,6 @@ namespace Services.IServices
         IDbContextTransaction BeginTransaction();
         List<Product> GetProductsByCategory(Guid category);
         bool CanDelete(Guid productID);
+        void Add(Product product);
     }
 }

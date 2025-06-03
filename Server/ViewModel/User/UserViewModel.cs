@@ -23,9 +23,14 @@ namespace Server.ViewModel.User
         [Display(Name = "Hình ảnh")]
         public IFormFile? ImageFile { get; set; }
 
-        [Required(ErrorMessage = "Mật khẩu không được để trống")]
         [Display(Name = "Mật khẩu")]
-        public string Password { get; set; }
+        [DataType(DataType.Password)]
+        public string? Password { get; set; }
+
+        [Display(Name = "Xác nhận mật khẩu")]
+        [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
+        public string? ConfirmPassword { get; set; }
 
         [Display(Name = "Ngày sinh")]
         [Required(ErrorMessage = "Ngày sinh không được để trống")]

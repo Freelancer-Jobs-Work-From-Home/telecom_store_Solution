@@ -73,41 +73,54 @@ namespace Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] ProductFormModel model)
+        public IActionResult Create([FromForm] ProductFormModel model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            string uniqueFileName = null;
-
-            if (model.ImageFile != null)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images/products");
-                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-                uniqueFileName = Guid.NewGuid() + Path.GetExtension(model.ImageFile.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.ImageFile.CopyToAsync(stream);
-                }
+                return BadRequest(ModelState);
             }
 
-            var pro = new Product
+            // Xử lý lưu hình ảnh nếu có
+            string imageUrl = string.Empty;
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                // Đường dẫn vật lý tới thư mục Upload/images/products (nằm ngoài wwwroot)
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Upload", "images", "products");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Tạo tên file duy nhất
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // Ghi file
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.ImageFile.CopyTo(fileStream);
+                }
+
+                // Lưu đường dẫn tương đối (trình duyệt có thể truy cập qua /Upload/...)
+                imageUrl = "/Upload/images/products/" + uniqueFileName;
+            }
+
+            // Tạo đối tượng Product để lưu vào DB
+            var newProduct = new Product
             {
                 ProductID = Guid.NewGuid(),
                 Name = model.Name,
+                Description = model.Description,
                 Price = model.Price,
                 Stock = model.Stock,
-                Description = model.Description,
-                ImageURL = uniqueFileName != null ? "/images/products/" + uniqueFileName : null,
-                CategoryID = model.CategoryId,
-                CreatedAt = DateTime.UtcNow
+                ImageURL = imageUrl,
+                CategoryID = model.CategoryId
             };
 
-            _productService.Add(pro);
-            return Ok(new { message = "Thêm sản phẩm thành công." });
+            _productService.Add(newProduct);
+
+            return Ok(new { message = "Tạo sản phẩm thành công", productId = newProduct.ProductID });
         }
 
 
