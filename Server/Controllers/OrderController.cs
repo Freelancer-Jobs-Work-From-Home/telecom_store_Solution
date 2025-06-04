@@ -159,6 +159,78 @@ namespace Server.Controllers
 
         // Các hàm admin giữ nguyên
         // (không cần sửa vì không phụ thuộc vào xác thực người dùng qua claims)
+        #region Admin APIs
+
+        // Prefix route: /api/order/admin/...
+        // Có thể thêm [Authorize(Roles = "Admin")] nếu muốn giới hạn quyền admin
+
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult GetAllOrders()
+        {
+            var orders = _orderService.GetAll();
+            var orderDetails = _orderDetailService.GetAll().ToList();
+
+            var result = orders.Select(order => new OrderViewModel
+            {
+                OrderID = order.OrderID,
+                UserID = order.UserID,
+                FullName = _userService.GetById(order.UserID)?.FullName ?? "Unknown",
+                TotalPrice = order.TotalPrice,
+                Status = order.Status,
+                CreatedAt = order.CreatedAt,
+                OrderDetails = orderDetails
+                    .Where(od => od.OrderID == order.OrderID)
+                    .Select(od => new OrderDetailViewModel
+                    {
+                        ProductID = od.ProductID,
+                        ProductName = _productService.GetById(od.ProductID)?.Name ?? "Unknown",
+                        Quantity = od.Quantity,
+                        Price = od.Price
+                    }).ToList()
+            });
+
+            return Ok(result);
+        }
+
+        [HttpPost("admin/update-status")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult UpdateOrderStatus([FromBody] UpdateOrderStatusRequest request)
+        {
+            var order = _orderService.GetById(request.OrderID);
+            if (order == null)
+                return NotFound(new { error = "Không tìm thấy đơn hàng." });
+
+            if (string.IsNullOrWhiteSpace(request.Status))
+                return BadRequest(new { error = "Trạng thái không hợp lệ." });
+
+            order.Status = request.Status;
+            _orderService.Update(order);
+
+            return Ok(new { message = "Cập nhật trạng thái đơn hàng thành công." });
+        }
+
+        [HttpPost("update-status-ajax")]
+        public IActionResult UpdateOrderStatusAjax([FromBody] UpdateOrderStatusRequest request)
+        {
+            var order = _orderService.GetById(request.OrderID);
+            if (order == null)
+                return NotFound(new { success = false, message = "Không tìm thấy đơn hàng." });
+
+            order.Status = request.Status;
+            _orderService.Update(order);
+
+            string badgeClass = request.Status == "Pending" ? "bg-warning text-dark" :
+                                request.Status == "Completed" ? "bg-success" : "bg-danger";
+
+            string badgeHtml = $"<span class='badge {badgeClass}'>{request.Status}</span>";
+
+            return Ok(new { success = true, statusHtml = badgeHtml });
+        }
+
+
+        #endregion
+
 
         #region Helpers
 

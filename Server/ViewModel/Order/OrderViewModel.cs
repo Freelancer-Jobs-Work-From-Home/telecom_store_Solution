@@ -12,5 +12,7 @@
 
         public string Discount { get; set; }
         public List<OrderDetailViewModel> OrderDetails { get; set; }
+
+
     }
 }

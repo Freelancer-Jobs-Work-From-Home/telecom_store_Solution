@@ -206,6 +206,20 @@ namespace eStore.Controllers
             return Json(new { newTotal = total });
         }
 
+        [HttpPost]
+        public IActionResult RemoveItem(Guid productId)
+        {
+            var cart = HttpContext.Session.GetObjectFromJson<List<CartItemViewModel>>("Cart") ?? new List<CartItemViewModel>();
+
+            var item = cart.FirstOrDefault(c => c.ProductID == productId);
+            if (item != null)
+            {
+                cart.Remove(item);
+                HttpContext.Session.SetObjectAsJson("Cart", cart);
+            }
+
+            return Json(new { success = true });
+        }
 
 
 
