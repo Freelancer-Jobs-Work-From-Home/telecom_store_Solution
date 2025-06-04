@@ -6,8 +6,7 @@ using eStore.Models.Category;
 using System.Text;
 using BussinessObject.Models;
 using OfficeOpenXml;
-using System.Globalization;
-
+using System.Drawing;
 
 namespace eStore.Controllers
 {
@@ -322,6 +321,66 @@ namespace eStore.Controllers
 
             TempData["Success"] = "Nhập dữ liệu thành công!";
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ExportProductExcel()
+        {
+            var response = await _httpClient.GetAsync("Product");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Không thể tải danh sách sản phẩm từ API.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var products = JsonConvert.DeserializeObject<List<ProductViewModel>>(content);
+
+            if (products == null || products.Count == 0)
+            {
+                TempData["Error"] = "Không có dữ liệu sản phẩm để xuất.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Phải set license context
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Products");
+
+                // Header
+                worksheet.Cells[1, 1].Value = "Tên sản phẩm";
+                worksheet.Cells[1, 2].Value = "Miêu tả";
+                worksheet.Cells[1, 3].Value = "Giá";
+                worksheet.Cells[1, 4].Value = "Số lượng";
+                worksheet.Cells[1, 5].Value = "Danh mục";
+                worksheet.Cells[1, 6].Value = "Hình ảnh";
+
+                using (var range = worksheet.Cells[1, 1, 1, 6])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                }
+
+                int row = 2;
+                foreach (var product in products)
+                {
+                    worksheet.Cells[row, 1].Value = product.Name;
+                    worksheet.Cells[row, 2].Value = product.Description;
+                    worksheet.Cells[row, 3].Value = product.Price;
+                    worksheet.Cells[row, 4].Value = product.Stock;
+                    worksheet.Cells[row, 5].Value = product.CategoryName;
+                    worksheet.Cells[row, 6].Value = product.ImageURL;
+                    row++;
+                }
+
+                worksheet.Cells.AutoFitColumns();
+
+                var stream = new MemoryStream(package.GetAsByteArray());
+                return File(stream.ToArray(),
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            "ProductsExport.xlsx");
+            }
         }
     }
 

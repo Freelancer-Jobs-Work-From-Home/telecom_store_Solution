@@ -10,6 +10,7 @@ namespace eStore.Models.Category
         [Display(Name = "Danh mục")]
         public string CategoryName { get; set; }
 
+        [Ignore]
         public bool CanDelete { get; set; } = true;
     }
 }

@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Globalization;
 using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
 
 namespace eStore.Controllers
 {
@@ -107,5 +110,129 @@ namespace eStore.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+        // View Import CSV
+        public IActionResult ImportCsv()
+        {
+            return View(new List<CategoryViewModel>());
+        }
+
+        // Xem trước dữ liệu CSV
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PreviewCategoryCsv(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn file CSV hợp lệ.";
+                return View(new List<CategoryViewModel>());
+            }
+
+            List<CategoryViewModel> categories = new List<CategoryViewModel>();
+
+            try
+            {
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    HasHeaderRecord = true,
+                };
+
+                using (var stream = file.OpenReadStream())
+                using (var reader = new StreamReader(stream, Encoding.UTF8))
+                using (var csv = new CsvReader(reader, config))
+                {
+                    var records = csv.GetRecords<CategoryViewModel>();
+                    categories = records.ToList();
+                }
+
+                if (categories.Count == 0)
+                {
+                    TempData["Error"] = "File CSV không chứa dữ liệu hợp lệ.";
+                    return View(new List<CategoryViewModel>());
+                }
+
+                // Truyền dữ liệu ra view để xem trước
+                ViewBag.PreviewData = categories;
+                return View(categories);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Lỗi đọc file CSV: {ex.Message}";
+                return View(new List<CategoryViewModel>());
+            }
+        }
+
+        // Xử lý import CSV sau khi người dùng xác nhận
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ProcessCsvImport(string PreviewDataJson, string confirmed)
+        {
+            if (confirmed != "true")
+            {
+                TempData["Error"] = "Chưa xác nhận nhập dữ liệu.";
+                return RedirectToAction(nameof(ImportCsv));
+            }
+
+            try
+            {
+                var categories = JsonConvert.DeserializeObject<List<CategoryViewModel>>(PreviewDataJson);
+
+                if (categories == null || categories.Count == 0)
+                {
+                    TempData["Error"] = "Dữ liệu nhập không hợp lệ.";
+                    return RedirectToAction(nameof(ImportCsv));
+                }
+
+                foreach (var cate in categories)
+                {
+                    var json = JsonConvert.SerializeObject(cate);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    var response = await _httpClient.PostAsync("Category", content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        TempData["Error"] = "Một số danh mục không thể được tạo.";
+                    }
+                }
+
+                TempData["Success"] = $"Đã nhập thành công {categories.Count} danh mục.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Lỗi khi nhập dữ liệu: {ex.Message}";
+                return RedirectToAction(nameof(ImportCsv));
+            }
+        }
+        public async Task<IActionResult> ExportCsv()
+        {
+            var response = await _httpClient.GetAsync("Category");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Không thể tải danh mục từ API.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var categories = JsonConvert.DeserializeObject<List<CategoryViewModel>>(content);
+
+            if (categories == null || categories.Count == 0)
+            {
+                TempData["Error"] = "Không có dữ liệu để xuất.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            using (var memoryStream = new MemoryStream())
+            using (var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8))
+            using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
+            {
+                csvWriter.WriteRecords(categories);
+                streamWriter.Flush();
+
+                var result = memoryStream.ToArray();
+
+                return File(result, "text/csv", "CategoriesExport.csv");
+            }
+        }
+
     }
 }
